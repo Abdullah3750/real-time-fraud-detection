@@ -1,0 +1,18 @@
+{
+  "model": "IsolationForest",
+  "n_estimators": 200,
+  "max_samples": 256,
+  "pr_auc": 0.08502016847402223,
+  "threshold": 0.6516174285789955,
+  "precision": 0.1935483870967742,
+  "recall": 0.25263157894736843,
+  "f1": 0.2191780821917808,
+  "confusion_matrix": {
+    "tn": 56551,
+    "fp": 100,
+    "fn": 71,
+    "tp": 24
+  },
+  "test_set_size": 56746,
+  "test_set_fraud_count": 95
+}

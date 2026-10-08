@@ -1,0 +1,30 @@
+# --- Core ---
+pandas>=2.2
+numpy>=1.26
+scikit-learn>=1.4
+joblib>=1.3
+
+# --- Deep learning (autoencoder) ---
+torch>=2.2
+
+# --- API ---
+fastapi>=0.111
+uvicorn[standard]>=0.29
+pydantic>=2.7
+python-dotenv>=1.0
+
+# --- Streaming ---
+kafka-python>=2.0
+
+# --- EDA / viz (notebooks only) ---
+matplotlib>=3.8
+seaborn>=0.13
+jupyter>=1.0
+
+# --- Testing ---
+pytest>=8.2
+httpx>=0.27
+
+# --- Dev tooling ---
+black>=24.4
+ruff>=0.4
