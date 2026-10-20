@@ -20,9 +20,17 @@ DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
 DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
 MODELS_DIR = PROJECT_ROOT / "models"
 
-# --- Model serving ---
-MODEL_PATH = Path(os.getenv("MODEL_PATH", MODELS_DIR / "isolation_forest.joblib"))
-RISK_THRESHOLD = float(os.getenv("RISK_THRESHOLD", "0.5"))
+# --- Model serving (autoencoder) ---
+# Folder holding the three artifacts written by src/models/train_autoencoder.py.
+# A relative MODEL_DIR is taken relative to the project root, not the current folder.
+_model_dir = Path(os.getenv("MODEL_DIR", "models"))
+MODEL_DIR = _model_dir if _model_dir.is_absolute() else PROJECT_ROOT / _model_dir
+
+AE_WEIGHTS_PATH = MODEL_DIR / "autoencoder.pt"
+AE_SCALER_PATH = MODEL_DIR / "autoencoder_scaler.joblib"
+AE_CONFIG_PATH = MODEL_DIR / "autoencoder_config.json"
+# No threshold here on purpose: it belongs to the trained model and is read
+# from autoencoder_config.json, so it can never drift out of sync with the weights.
 
 # --- Kafka ---
 KAFKA_BOOTSTRAP_SERVERS = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")
