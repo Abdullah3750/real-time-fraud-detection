@@ -15,9 +15,15 @@ from torch import nn
 
 from src import config
 
-
 class FraudScorer:
     def __init__(self) -> None:
+        required = (config.AE_CONFIG_PATH, config.AE_WEIGHTS_PATH, config.AE_SCALER_PATH)
+        missing = [p.name for p in required if not p.exists()]
+        if missing:
+            raise FileNotFoundError(
+                f"Model files not found in {config.MODEL_DIR}: {', '.join(missing)}. "
+                "Train the model first: python -m src.models.train_autoencoder"
+            )
         cfg = json.loads(config.AE_CONFIG_PATH.read_text())
         self.features = cfg["features"]
         self.scaled_features = cfg["scaled_features"]
