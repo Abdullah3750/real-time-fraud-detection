@@ -62,6 +62,43 @@ pip install -r requirements.txt
 python -m src.models.train_isolation_forest
 python -m src.models.train_autoencoder
 
+## Scoring API (FastAPI)
+
+The trained autoencoder is served by a FastAPI service. It loads the model, the Amount scaler and the decision threshold once at startup from `models/` (written by `python -m src.models.train_autoencoder`).
+
+**Run it** (from the project root):
+
+```bash
+uvicorn src.api.main:app --reload
+```
+
+Interactive docs: http://127.0.0.1:8000/docs
+
+| Endpoint | Method | Purpose |
+|---|---|---|
+| `/health` | GET | Service is up and the model is loaded |
+| `/score` | POST | Risk score for one transaction |
+
+**Example request** (raw, unscaled Amount; the API applies the same scaling used in training):
+
+```python
+import requests
+
+tx = {f"V{i}": 0.0 for i in range(1, 29)}
+tx["Amount"] = 50.0
+print(requests.post("http://127.0.0.1:8000/score", json=tx).json())
+```
+
+```json
+{"risk_score": 0.0969, "threshold": 6.828, "flagged": false}
+```
+
+- `risk_score`: mean squared reconstruction error. Higher means more unusual.
+- `flagged`: `true` when `risk_score` is above the threshold chosen in training. The raw score is returned too, so a downstream system could, for example, send mid-range scores to manual review instead of blocking them.
+- Invalid input (missing fields, non-numeric values, negative Amount) is rejected with HTTP 422 before it reaches the model.
+
+**Latency** (laptop, 200 random transactions, sequential requests): median ~11 ms, p95 ~20 ms.
+
 # 4. (Coming soon) Run the full stack
 docker compose up
 ```
