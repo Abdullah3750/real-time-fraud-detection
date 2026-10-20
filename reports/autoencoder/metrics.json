@@ -1,0 +1,28 @@
+{
+  "model": "Autoencoder",
+  "layers": [
+    29,
+    16,
+    8,
+    16,
+    29
+  ],
+  "epochs": 20,
+  "batch_size": 256,
+  "learning_rate": 0.001,
+  "final_train_loss": 0.3131624702713371,
+  "final_val_loss": 0.30831435322761536,
+  "pr_auc": 0.428072412162305,
+  "threshold": 6.8279709815979,
+  "precision": 0.5154639175257731,
+  "recall": 0.5263157894736842,
+  "f1": 0.5208333333333334,
+  "confusion_matrix": {
+    "tn": 56604,
+    "fp": 47,
+    "fn": 45,
+    "tp": 50
+  },
+  "test_set_size": 56746,
+  "test_set_fraud_count": 95
+}

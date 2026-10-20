@@ -58,8 +58,9 @@ python3 -m venv .venv && source .venv/bin/activate
 # 2. Install dependencies
 pip install -r requirements.txt
 
-# 3. (Coming soon) Train the model
+# 3. Train the models (needs data/raw/creditcard.csv from Kaggle)
 python -m src.models.train_isolation_forest
+python -m src.models.train_autoencoder
 
 # 4. (Coming soon) Run the full stack
 docker compose up
@@ -81,7 +82,7 @@ fraud-detection-api/
 ├── notebooks/             # EDA and experimentation
 ├── src/
 │   ├── data/               # download & preprocessing
-│   ├── models/              # training scripts for Isolation Forest / autoencoder
+│   ├── models/              # training scripts: Isolation Forest, autoencoder
 │   ├── api/                 # FastAPI service
 │   ├── streaming/            # Kafka producer & consumer
 │   └── utils/
@@ -119,7 +120,41 @@ curve, confusion matrix, score distribution by class).
 
 ### Autoencoder
 
-_Not yet trained — next phase._
+A PyTorch autoencoder (29 → 16 → 8 → 16 → 29) trained on known-normal
+transactions only. It learns to compress and rebuild normal transactions;
+fraud doesn't follow those patterns, so it is rebuilt badly, and the
+**reconstruction error is the risk score**. Same preprocessing and the
+**same test set** as the Isolation Forest, so the comparison is controlled.
+
+| Metric | Isolation Forest | Autoencoder |
+|---|---|---|
+| PR-AUC | 0.085 | **0.43** (≈255x the no-skill baseline) |
+| Precision @ chosen threshold | 0.194 | **0.515** |
+| Recall @ chosen threshold | 0.253 | **0.526** |
+| F1 @ chosen threshold | 0.219 | **0.521** |
+| Frauds caught / missed (of 95) | 24 / 71 | **50 / 45** |
+| False alarms | 100 | **47** |
+
+In plain terms: the autoencoder catches about twice as many frauds while
+raising about half as many false alarms, so roughly 1 in 2 flags is real fraud,
+against about 1 in 5 for the baseline. It catches 22 of the Isolation Forest's 24 frauds,
+so combining the two adds little. More than 40 frauds look normal to *both*
+models, which is the limit of purely unsupervised detection and the case for a
+supervised model.
+
+Other findings, with the experiments in `notebooks/03_autoencoder.ipynb`:
+
+- **Preprocessing was chosen by experiment**, comparing three scaling options across
+  three random seeds. RobustScaler on `Amount` only (V1–V28 left as they
+  are) won with every seed.
+- **A validation split** (10% of the normal training rows) shows no overfitting:
+  both losses fall and plateau together.
+- **Caveats:** as for the baseline, the threshold is chosen on the test set,
+  so absolute numbers are slightly optimistic. Results also vary a little with
+  the random seed and between machines.
+
+See `reports/autoencoder/` for the plots (loss curves, precision-recall curve,
+confusion matrix, error distribution by class).
 
 ## License
 
